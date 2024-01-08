@@ -1,9 +1,0 @@
-{
-  "name": "Coursework",
-  "image": "mcr.microsoft.com/devcontainers/base:jammy",
-  "features": {
-    "ghcr.io/devcontainers-contrib/features/graalvm-asdf:2": {},
-    "ghcr.io/devcontainers-contrib/features/gradle-sdkman:2": {},
-    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
-  }
-}
