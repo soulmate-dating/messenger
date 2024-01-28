@@ -1,0 +1,15 @@
+FROM gradle:8.5.0-jdk21-graal as builder
+
+WORKDIR /messenger
+
+COPY build.gradle .
+RUN gradle dependencies
+COPY . .
+RUN gradle clean nativeCompile -x test
+
+FROM alpine:3.19.1
+
+RUN apk update && apk add gcompat
+COPY --from=builder /messenger/build/native/nativeCompile/messenger .
+
+ENTRYPOINT [ "/messenger" ]

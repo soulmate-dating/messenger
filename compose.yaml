@@ -1,8 +1,44 @@
+version: "3"
+
 services:
-  cassandra:
-    image: 'cassandra:latest'
-    environment:
-      - 'CASSANDRA_DC=dc1'
-      - 'CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch'
+
+  messenger:
+    container_name: messenger
+    build:
+      context: .
+      dockerfile: Dockerfile.common
+#      dockerfile: Dockerfile.native
     ports:
-      - '9042'
+      - "8080:8080"
+    environment:
+      DB_HOST: scylla-node1
+      DB_PORT: 9042
+    networks:
+      web:
+
+  scylla-node1:
+    container_name: scylla-node1
+    image: scylladb/scylla:5.2.14
+    ports:
+      - "9042:9042"
+    command: --memory 750M
+    volumes:
+      - "./schema.cql:/schema.cql"
+    networks:
+      web:
+
+  script_runner:
+    image: scylladb/scylla:5.2.14
+    depends_on:
+      - scylla-node1
+    restart: "no"
+    volumes:
+      - "./schema.cql:/schema.cql"
+    network_mode: "service:scylla-node1"
+    environment:
+      CQLSH_HOST: scylla-node1
+    entrypoint: [ "bash", "-c", "sleep 40 && cqlsh -f /schema.cql"]
+
+networks:
+  web:
+    driver: bridge

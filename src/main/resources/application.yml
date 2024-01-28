@@ -1,0 +1,6 @@
+spring:
+  cassandra:
+    contact-points: ${DB_HOST:localhost}
+    port: ${DB_PORT:9042}
+    keyspace-name: messenger
+    local-datacenter: DC1

@@ -1,0 +1,14 @@
+FROM gradle:8.5.0-jdk21-graal as builder
+
+WORKDIR /messenger
+
+COPY build.gradle .
+RUN gradle dependencies
+COPY . .
+RUN gradle clean build -x test
+
+FROM container-registry.oracle.com/graalvm/jdk:21
+
+COPY --from=builder /messenger/build/libs/messenger-0.0.1-SNAPSHOT.jar messenger.jar
+
+ENTRYPOINT [ "java", "-jar", "messenger.jar" ]
