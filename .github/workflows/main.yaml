@@ -1,0 +1,89 @@
+name: Java Application CI/CD
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+
+permissions:
+  contents: read
+  issues: read
+  checks: write
+  pull-requests: write
+
+jobs:
+  build_and_test_and_lint:
+    name: Build, Test and Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Codebase
+        uses: actions/checkout@v2
+
+      - name: Set Up JDK
+        uses: actions/setup-java@v2
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Cache Gradle Dependencies
+        uses: actions/cache@v2
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Build with Gradle
+        run: ./gradlew build --no-daemon
+
+      - name: Publish Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
+        with:
+          files: build/test-results/test/*.xml
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish SonarLint Results
+        uses: jwgmeligmeyling/spotbugs-github-action@v1.2
+        with:
+          name: Sonarlint
+          title: Sonarlint report
+          path: build/reports/sonarlint/*.xml
+
+      - name: Publish Spotbugs Results
+        uses: jwgmeligmeyling/spotbugs-github-action@v1.2
+        with:
+          name: Spotbugs
+          path: build/reports/spotbugs/*.xml
+
+  build_docker_images_and_publish_to_ghcr:
+    name: Build Docker Images and Publish to GHCR
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Codebase
+        uses: actions/checkout@v2
+
+      - name: Set Up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Cache Docker Layers
+        uses: actions/cache@v2
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ hashFiles('**/.buildx-cache') }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
+
+      # add tag with version from git tag and tag 'latest' and push to GHCR
+      - name: Build and Push Docker Images
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          docker buildx build --platform linux/amd64 -t ghcr.io/messenger:latest -t ghcr.io/messenger:${{ github.ref }} -f Docker.common
+          docker buildx build --platform linux/amd64 -t ghcr.io/messenger:latest-native -t ghcr.io/messenger:${{ github.ref }}-native -f Docker.native
+          echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+          docker push ghcr.io/messenger:latest
+          docker push ghcr.io/messenger:${{ github.ref }}
+          docker push ghcr.io/messenger:latest-native
+          docker push ghcr.io/messenger:${{ github.ref }}-native
