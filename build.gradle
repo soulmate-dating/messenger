@@ -3,6 +3,9 @@ plugins {
     id 'org.springframework.boot' version '3.2.1'
     id 'io.spring.dependency-management' version '1.1.4'
     id 'org.graalvm.buildtools.native' version '0.9.28'
+
+    id 'com.github.spotbugs' version '5.0.14'
+    id 'se.solrike.sonarlint' version '1.0.0-beta.9'
 }
 
 group = 'dev.glimpse'
@@ -39,4 +42,38 @@ dependencies {
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+sonarlint {
+    ignoreFailures = true
+    showIssues = false
+}
+
+
+sonarlintMain {
+    ignoreFailures = true
+    dependencies {
+        sonarlintPlugins 'org.sonarsource.java:sonar-java-plugin:7.17.0.31219'
+    }
+    reports {
+        xml.enabled = true
+        html {
+            enabled = true
+        }
+    }
+}
+
+spotbugs {
+    ignoreFailures = true
+}
+
+spotbugsMain {
+    ignoreFailures = true
+    dependencies {
+        spotbugs 'com.github.spotbugs:spotbugs:4.7.3'
+        spotbugsPlugins 'com.h3xstream.findsecbugs:findsecbugs-plugin:1.12.0'
+    }
+    reports {
+        xml.enabled = true
+    }
 }
