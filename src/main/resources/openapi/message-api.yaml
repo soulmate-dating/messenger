@@ -1,0 +1,132 @@
+openapi: "3.0.0"
+info:
+  title: Message API
+  description: Message API written in google cloud rest api codestyle
+  version: 0.0.1
+servers:
+  - url: http://localhost:8080/api/v0
+    description: Local server
+paths:
+    /users/{id}/messages:
+        parameters:
+          - name: id
+            in: path
+            description: The unique identifier of the recipient
+            required: true
+            schema:
+              type: string
+              format: uuid
+              example: 123e4567-e89b-12d3-a456-426614174000
+        post:
+          tags:
+              - message
+          summary: Send a message
+          operationId: sendMessage
+          requestBody:
+            description: The message to send
+            required: true
+            content:
+                application/json:
+                    schema:
+                        $ref: '#/components/schemas/SendMessage'
+          responses:
+              '200':
+                description: OK
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/Message'
+
+        get:
+            tags:
+                - message
+            summary: Get all messages
+            operationId: getMessages
+            parameters:
+                - name: page
+                  in: query
+                  description: The page number
+                  required: false
+                  schema:
+                      type: integer
+                      default: 0
+                      minimum: 0
+                - name: size
+                  in: query
+                  description: The page size
+                  required: false
+                  schema:
+                      type: integer
+                      default: 10
+                      minimum: 10
+                      maximum: 15
+            responses:
+                '200':
+                  description: OK
+                  content:
+                    application/json:
+                        schema:
+                          $ref: '#/components/schemas/MessagePage'
+
+components:
+  schemas:
+    SendMessage:
+      type: object
+      required:
+        - recipient_id
+        - content
+      properties:
+          recipient_id:
+              format: uuid
+              type: string
+              description: The unique identifier of the recipient
+              example: 123e4567-e89b-12d3-a456-426614174000
+          content:
+              type: string
+              description: The content of the message
+              example: Hello, World!
+              maxLength: 1000
+              minLength: 1
+
+    Message:
+        type: object
+        properties:
+          id:
+            format: uuid
+            type: string
+            description: The unique identifier of the message
+            example: 123e4567-e89b-12d3-a456-426614174000
+          sender_id:
+            format: uuid
+            type: string
+            description: The unique identifier of the sender
+            example: 123e4567-e89b-12d3-a456-426614174000
+          recipient_id:
+            format: uuid
+            type: string
+            description: The unique identifier of the recipient
+            example: 123e4567-e89b-12d3-a456-426614174000
+          date:
+            type: string
+            format: date-time
+            description: The date and time the message was sent
+            example: 2021-08-01T12:00:00Z
+          content:
+            type: string
+            description: The content of the message
+            example: Hello, World!
+            maxLength: 1000
+
+    MessagePage:
+        type: object
+        properties:
+          messages:
+            type: array
+            items:
+              $ref: '#/components/schemas/Message'
+          page:
+            type: integer
+          size:
+            type: integer
+          total:
+            type: integer

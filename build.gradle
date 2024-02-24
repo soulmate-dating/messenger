@@ -62,6 +62,11 @@ tasks.named('test') {
 ////////////////////////
 
 def specFiles = [
+        [
+                input       : "message-api.yaml",
+                apiPackage  : "dev.glimpse.messenger.message.presentation.api",
+                modelPackage: "dev.glimpse.messenger.message.presentation.dto"
+        ]
 ]
 
 static def specNameToTaskName(spec) {
