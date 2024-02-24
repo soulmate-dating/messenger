@@ -120,6 +120,9 @@ sonarlint {
 }
 
 sonarlintMain {
+    specFiles.collectMany { List.of(it.modelPackage, it.apiPackage) }
+            .collect { "**/" + it.replace(".", "/") + "/*" }
+            .each { exclude it }
     ignoreFailures = true
     dependencies {
         sonarlintPlugins 'org.sonarsource.java:sonar-java-plugin:7.17.0.31219'
