@@ -1,8 +1,18 @@
+buildscript {
+    ext {
+        openapiGeneratorVersion = "6.6.0"
+    }
+    dependencies {
+        classpath "org.openapitools:openapi-generator-gradle-plugin:$openapiGeneratorVersion"
+    }
+}
+
 plugins {
     id 'java'
     id 'org.springframework.boot' version '3.2.3'
     id 'io.spring.dependency-management' version '1.1.4'
     id 'org.graalvm.buildtools.native' version '0.9.28'
+    id "org.openapi.generator" version "$openapiGeneratorVersion"
 
     id 'com.github.spotbugs' version '5.0.14'
     id 'se.solrike.sonarlint' version '1.0.0-beta.9'
@@ -26,10 +36,13 @@ repositories {
 }
 
 dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springframework.boot:spring-boot-starter-data-cassandra'
     runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation "io.swagger.core.v3:swagger-annotations:2.2.10"
+    implementation 'org.openapitools:jackson-databind-nullable:0.2.6'
 
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
@@ -44,11 +57,67 @@ tasks.named('test') {
     useJUnitPlatform()
 }
 
+////////////////////////
+// OpenAPI Generator
+////////////////////////
+
+def specFiles = [
+]
+
+static def specNameToTaskName(spec) {
+    return spec.replaceAll("-api.yaml", "").split("-").collect { it.capitalize() }.join()
+}
+
+import org.openapitools.generator.gradle.plugin.tasks.GenerateTask
+
+specFiles.each { spec ->
+    tasks.register("openApiGenerateFrom${specNameToTaskName(spec.input)}", GenerateTask) {
+        generatorName = 'spring'
+        inputSpec = "${rootDir}/src/main/resources/openapi/${spec.input}"
+        outputDir = "${buildDir}/generated"
+        apiPackage = spec.apiPackage
+        modelPackage = spec.modelPackage
+        generateApiTests = false
+        generateModelTests = false
+        modelNameSuffix = "Dto"
+        additionalProperties = [
+                removeEnumValuePrefix : 'false'
+        ]
+        configOptions = [
+                dateLibrary   : 'java8',
+                useSpringBoot3: 'true',
+                delegatePattern: 'true',
+                interfaceOnly: 'true',
+                useTags: 'true'
+        ]
+    }
+}
+
+sourceSets.main.java.srcDirs += file("${buildDir}/generated/src/main/java")
+
+task generateAllApis {
+}
+
+generateAllApis.dependsOn {
+    specFiles.collect { spec -> "openApiGenerateFrom${specNameToTaskName(spec.input)}" }
+}
+
+tasks.named('compileJava') {
+    dependsOn generateAllApis
+}
+
+tasks.named('nativeCompile') {
+    dependsOn generateAllApis
+}
+
+////////////////////////
+// Linters
+////////////////////////
+
 sonarlint {
     ignoreFailures = true
     showIssues = false
 }
-
 
 sonarlintMain {
     ignoreFailures = true
