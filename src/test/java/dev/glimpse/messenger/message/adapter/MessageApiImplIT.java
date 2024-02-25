@@ -2,6 +2,9 @@ package dev.glimpse.messenger.message.adapter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.glimpse.messenger.AbstractIntegrationTest;
+import dev.glimpse.messenger.message.application.MessageRepository;
+import dev.glimpse.messenger.message.entity.Message;
+import dev.glimpse.messenger.message.entity.MessageObjectMother;
 import dev.glimpse.messenger.message.presentation.dto.SendMessageDtoObjectMother;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -12,6 +15,7 @@ import org.springframework.test.web.servlet.ResultActions;
 
 import java.util.UUID;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -23,6 +27,9 @@ public class MessageApiImplIT extends AbstractIntegrationTest {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @Autowired
+    private MessageRepository messageRepository;
 
     @DisplayName("Check that the message is sent.")
     @Test
@@ -57,6 +64,56 @@ public class MessageApiImplIT extends AbstractIntegrationTest {
 
         // Assert
         perform.andExpect(status().isBadRequest());
+    }
+
+    @DisplayName("Check that the finding messages returns empty page of messages when nothing found.")
+    @Test
+    public void testFindingMessagesReturnsPageOfMessages() throws Exception {
+        // Arrange
+        UUID userId = UUID.randomUUID();
+        UUID companionId = UUID.randomUUID();
+
+        // Act
+        ResultActions perform = mockMvc.perform(get(String.format("/users/%s/messages", userId))
+                .contentType(MediaType.APPLICATION_JSON)
+                .queryParam("companion_id", companionId.toString())
+                .queryParam("page", "0")
+                .queryParam("size", "10")
+        );
+
+        // Assert
+        perform.andExpect(status().isOk())
+               .andExpect(jsonPath("$.page").value(0))
+               .andExpect(jsonPath("$.size").value(10))
+               .andExpect(jsonPath("$.total").value(0))
+               .andExpect(jsonPath("$.messages").isArray());
+    }
+
+    @DisplayName("Check that the finding messages returns page with existing message.")
+    @Test
+    public void testFindingMessagesReturnsPageWithExistingMessage() throws Exception {
+        // Arrange
+        Message message = MessageObjectMother.createMessage();
+        messageRepository.save(message);
+
+        // Act
+        ResultActions perform = mockMvc.perform(get(String.format("/users/%s/messages", message.getRecipient().getId().toString()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .queryParam("companion_id", message.getSender().getId().toString())
+                .queryParam("page", "0")
+                .queryParam("size", "10")
+        );
+
+        // Assert
+        perform.andExpect(status().isOk())
+               .andExpect(jsonPath("$.page").value(0))
+               .andExpect(jsonPath("$.size").value(10))
+               .andExpect(jsonPath("$.total").value(1))
+               .andExpect(jsonPath("$.messages").isArray())
+               .andExpect(jsonPath("$.messages[0].id").isNotEmpty())
+               .andExpect(jsonPath("$.messages[0].sender_id").isNotEmpty())
+               .andExpect(jsonPath("$.messages[0].recipient_id").isNotEmpty())
+               .andExpect(jsonPath("$.messages[0].content").isNotEmpty());
     }
 
 }
