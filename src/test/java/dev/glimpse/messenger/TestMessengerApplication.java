@@ -23,7 +23,7 @@ public class TestMessengerApplication {
     @Bean
     @ServiceConnection
     CassandraContainer<?> cassandraContainer() {
-        return new CassandraContainer<>(DockerImageName.parse("cassandra:3.11"))
+        return new CassandraContainer<>(DockerImageName.parse("cassandra:latest"))
                 .withInitScript("schema.cql")
                 .withExposedPorts(9042);
     }
