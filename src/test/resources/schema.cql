@@ -14,5 +14,5 @@ create table if not exists messages(
     recipient_id uuid,
     date timestamp,
     content text,
-    PRIMARY KEY ( id, date )
+    PRIMARY KEY ( id, date, recipient_id, sender_id )
 ) with clustering order by (date DESC);
