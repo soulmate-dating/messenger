@@ -7,7 +7,7 @@ import java.util.UUID;
 
 public class MessageObjectMother {
 
-     public static Message createMessage() {
+    public static Message createMessage() {
         return Message.of(
                 Sender.of(UUID.randomUUID()),
                 Recipient.of(UUID.randomUUID()),
@@ -15,4 +15,13 @@ public class MessageObjectMother {
         );
     }
 
+    public static Message createMessage(Sender sender, Recipient recipient) {
+        return Message.of(
+                sender,
+                recipient,
+                MessageContent.of("SOME CONTENT")
+        );
+    }
+
 }
+

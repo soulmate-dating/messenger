@@ -35,8 +35,12 @@ public class MessageApiImpl implements MessageApi {
     }
 
     @Override
-    public ResponseEntity<MessagePageDto> getMessages(UUID id, UUID companionId, Integer page, Integer size) {
-        Page<Message> messagePage = findingMessagesUseCase.execute(id, companionId, new Paging(page, size));
+    public ResponseEntity<MessagePageDto> getMessages(UUID id,
+                                                      UUID companionId,
+                                                      Integer page,
+                                                      Integer size,
+                                                      UUID fromMessageId) {
+        Page<Message> messagePage = findingMessagesUseCase.execute(id, companionId, fromMessageId, new Paging(page, size));
         MessagePageDto converted = conversionService.convert(messagePage, MessagePageDto.class);
         return ResponseEntity.ok(converted);
     }

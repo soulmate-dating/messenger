@@ -10,6 +10,6 @@ public interface MessageRepository {
 
     Message save(Message message);
 
-    Page<Message> findMessagesInDialog(UUID userId, UUID companionId, Paging paging);
+    Page<Message> findMessagesInDialog(UUID userId, UUID companionId, UUID fromMessageId, Paging paging);
 
 }
