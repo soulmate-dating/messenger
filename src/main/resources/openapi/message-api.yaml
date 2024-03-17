@@ -68,6 +68,14 @@ paths:
                       default: 10
                       minimum: 10
                       maximum: 15
+                - name: from_message_id
+                  in: query
+                  description: The unique identifier of the message to start from
+                  required: false
+                  schema:
+                      type: string
+                      format: uuid
+                      example: 123e4567-e89b-12d3-a456-426614174000
             responses:
                 '200':
                   description: OK
