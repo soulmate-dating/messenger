@@ -1,4 +1,4 @@
-package dev.glimpse.messenger.message.adapter;
+package dev.glimpse.messenger.message.infrastructure;
 
 import dev.glimpse.messenger.message.entity.Message;
 import dev.glimpse.messenger.message.entity.MessageId;

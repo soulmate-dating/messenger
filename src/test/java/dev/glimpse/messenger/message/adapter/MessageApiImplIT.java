@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.glimpse.messenger.AbstractIntegrationTest;
 import dev.glimpse.messenger.message.entity.Message;
 import dev.glimpse.messenger.message.entity.MessageObjectMother;
+import dev.glimpse.messenger.message.infrastructure.CassandraMessageRepository;
 import dev.glimpse.messenger.message.presentation.dto.SendMessageDtoObjectMother;
 import dev.glimpse.messenger.user.entity.Recipient;
 import dev.glimpse.messenger.user.entity.Sender;
