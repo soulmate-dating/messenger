@@ -1,4 +1,4 @@
-package dev.glimpse.messenger.message.adapter;
+package dev.glimpse.messenger.message.infrastructure;
 
 import dev.glimpse.messenger.common.Paging;
 import dev.glimpse.messenger.message.application.MessageRepository;
