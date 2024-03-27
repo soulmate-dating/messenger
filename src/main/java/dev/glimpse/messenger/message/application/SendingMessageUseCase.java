@@ -15,6 +15,7 @@ import java.util.UUID;
 public class SendingMessageUseCase {
 
     private final MessageRepository messageRepository;
+    private final MessageSender messageSender;
 
     public Message execute(@NonNull UUID senderId,
                            @NonNull UUID recipientId,
@@ -22,7 +23,9 @@ public class SendingMessageUseCase {
         Sender sender = Sender.of(senderId);
         Recipient recipient = Recipient.of(recipientId);
         Message message = Message.of(sender, recipient, content);
-        return messageRepository.save(message);
+        message = messageRepository.save(message);
+        messageSender.send(recipientId, message);
+        return message;
     }
 
 }
