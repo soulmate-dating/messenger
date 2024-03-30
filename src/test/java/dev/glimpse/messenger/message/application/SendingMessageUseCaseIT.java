@@ -27,7 +27,7 @@ class SendingMessageUseCaseIT extends AbstractIntegrationTest {
         var completableFuture = stompClientWrapper.listen(String.format("/users/%s/messages", recipientId), MessageDto.class);
 
         // Act
-        sendingMessageUseCase.execute(senderId, recipientId, MessageContent.of("Hello"));
+        sendingMessageUseCase.execute(senderId, recipientId, MessageContent.of("Hello"), null);
 
         // Assert
         MessageDto messageDto = completableFuture.get();

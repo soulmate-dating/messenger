@@ -4,7 +4,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.glimpse.messenger.AbstractIntegrationTest;
 import dev.glimpse.messenger.message.entity.Message;
 import dev.glimpse.messenger.message.entity.MessageObjectMother;
+import dev.glimpse.messenger.message.entity.MessageTag;
+import dev.glimpse.messenger.message.entity.MessageTagObjectMother;
 import dev.glimpse.messenger.message.infrastructure.CassandraMessageRepository;
+import dev.glimpse.messenger.message.presentation.dto.MessageTagDto;
+import dev.glimpse.messenger.message.presentation.dto.MessageTagDtoObjectMother;
 import dev.glimpse.messenger.message.presentation.dto.SendMessageDtoObjectMother;
 import dev.glimpse.messenger.user.entity.Recipient;
 import dev.glimpse.messenger.user.entity.Sender;
@@ -18,6 +22,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import java.util.List;
 import java.util.UUID;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -161,6 +166,63 @@ public class MessageApiImplIT extends AbstractIntegrationTest {
                     .andExpect(jsonPath(String.format("$.messages[%d].recipient_id", i)).value(message.getRecipient().getId().toString()))
                     .andExpect(jsonPath(String.format("$.messages[%d].content", i)).value(message.getContent().getValue()));
         }
+    }
+
+    @DisplayName("Check that sending message with tag is successful.")
+    @Test
+    public void testSendingMessageWithTag() throws Exception {
+        // Arrange
+        UUID senderId = UUID.randomUUID();
+        MessageTagDto tagDto = MessageTagDtoObjectMother.create();
+        var sendMessageDto = SendMessageDtoObjectMother.create(tagDto);
+
+        // Act
+        ResultActions perform = mockMvc.perform(post(String.format("/users/%s/messages", senderId))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(sendMessageDto)));
+
+        // Assert
+        perform.andExpect(status().isOk())
+               .andExpect(jsonPath("$.id").isNotEmpty())
+               .andExpect(jsonPath("$.sender_id").value(senderId.toString()))
+               .andExpect(jsonPath("$.recipient_id").value(sendMessageDto.getRecipientId().toString()))
+               .andExpect(jsonPath("$.content").value(sendMessageDto.getContent()))
+               .andExpect(jsonPath("$.tag.name").value(tagDto.getName().toString()))
+               .andExpect(jsonPath("$.tag.external_id").value(tagDto.getExternalId().toString()));
+    }
+
+    @DisplayName("Check that getting messages with tag is successful.")
+    @Test
+    public void testGettingMessagesWithTag() throws Exception {
+        // Arrange
+        MessageTag tag = MessageTagObjectMother.create();
+        Message message = MessageObjectMother.createMessage(tag);
+        messageRepository.save(message);
+
+        // Act
+        ResultActions perform = mockMvc.perform(get(String.format("/users/%s/messages", message.getRecipient().getId().toString()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .queryParam("companion_id", message.getSender().getId().toString())
+                .queryParam("page", "0")
+                .queryParam("size", "10")
+        );
+
+        // Assert
+        assertNotNull(message.getTag());
+        assertNotNull(message.getTag().getName());
+        assertNotNull(message.getTag().getExternalId());
+
+        perform.andExpect(status().isOk())
+               .andExpect(jsonPath("$.page").value(0))
+               .andExpect(jsonPath("$.size").value(10))
+               .andExpect(jsonPath("$.total").value(1))
+               .andExpect(jsonPath("$.messages").isArray())
+               .andExpect(jsonPath("$.messages[0].id").isNotEmpty())
+               .andExpect(jsonPath("$.messages[0].sender_id").value(message.getSender().getId().toString()))
+               .andExpect(jsonPath("$.messages[0].recipient_id").value(message.getRecipient().getId().toString()))
+               .andExpect(jsonPath("$.messages[0].content").value(message.getContent().getValue()))
+               .andExpect(jsonPath("$.messages[0].tag.name").value(message.getTag().getName().toString()))
+               .andExpect(jsonPath("$.messages[0].tag.external_id").value(message.getTag().getExternalId().toString()));
     }
 
 }

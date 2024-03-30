@@ -103,6 +103,8 @@ components:
               example: Hello, World!
               maxLength: 1000
               minLength: 1
+          tag:
+            $ref: '#/components/schemas/MessageTag'
 
     Message:
         type: object
@@ -132,6 +134,8 @@ components:
             description: The content of the message
             example: Hello, World!
             maxLength: 1000
+          tag:
+            $ref: '#/components/schemas/MessageTag'
 
     MessagePage:
         type: object
@@ -146,3 +150,19 @@ components:
             type: integer
           total:
             type: integer
+
+    MessageTag:
+      type: object
+      required:
+        - name
+        - external_id
+      properties:
+        name:
+          type: string
+          enum:
+            - REPLY
+            - REACTION
+        external_id:
+          type: string
+          format: uuid
+          example: 123e4567-e89b-12d3-a456-426614174000

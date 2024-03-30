@@ -8,19 +8,24 @@ import java.util.UUID;
 public class MessageObjectMother {
 
     public static Message createMessage() {
-        return Message.of(
-                Sender.of(UUID.randomUUID()),
-                Recipient.of(UUID.randomUUID()),
-                MessageContent.of("SOME CONTENT")
-        );
+        return createMessage(Sender.of(UUID.randomUUID()), Recipient.of(UUID.randomUUID()));
     }
 
     public static Message createMessage(Sender sender, Recipient recipient) {
-        return Message.of(
-                sender,
-                recipient,
-                MessageContent.of("SOME CONTENT")
-        );
+        return Message.builder()
+                .sender(sender)
+                .recipient(recipient)
+                .content(MessageContent.of("SOME CONTENT"))
+                .build();
+    }
+
+    public static Message createMessage(MessageTag tag) {
+        return Message.builder()
+                .tag(tag)
+                .content(MessageContent.of("SOME CONTENT"))
+                .sender(Sender.of(UUID.randomUUID()))
+                .recipient(Recipient.of(UUID.randomUUID()))
+                .build();
     }
 
 }
