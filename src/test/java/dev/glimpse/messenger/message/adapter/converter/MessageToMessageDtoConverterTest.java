@@ -16,7 +16,7 @@ class MessageToMessageDtoConverterTest {
     public void testMessageToMessageDtoConversion() {
         // Arrange
         var message = MessageObjectMother.createMessage();
-        var sut = new MessageToMessageDtoConverter();
+        var sut = new MessageToMessageDtoConverter(new MessageTagToMessageTagDtoConverter());
 
         // Act
         var messageDto = sut.convert(message);

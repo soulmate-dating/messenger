@@ -5,6 +5,7 @@ import dev.glimpse.messenger.message.application.FindingMessagesUseCase;
 import dev.glimpse.messenger.message.application.SendingMessageUseCase;
 import dev.glimpse.messenger.message.entity.Message;
 import dev.glimpse.messenger.message.entity.MessageContent;
+import dev.glimpse.messenger.message.entity.MessageTag;
 import dev.glimpse.messenger.message.presentation.api.MessageApi;
 import dev.glimpse.messenger.message.presentation.dto.MessageDto;
 import dev.glimpse.messenger.message.presentation.dto.MessagePageDto;
@@ -28,8 +29,9 @@ public class MessageApiImpl implements MessageApi {
     @Override
     public ResponseEntity<MessageDto> sendMessage(UUID id, SendMessageDto sendMessageDto) {
         MessageContent messageContent = MessageContent.of(sendMessageDto.getContent());
+        MessageTag tag = conversionService.convert(sendMessageDto.getTag(), MessageTag.class);
 
-        Message sentMessage = sendingMessageUseCase.execute(id, sendMessageDto.getRecipientId(), messageContent);
+        Message sentMessage = sendingMessageUseCase.execute(id, sendMessageDto.getRecipientId(), messageContent, tag);
         MessageDto converted = conversionService.convert(sentMessage, MessageDto.class);
         return ResponseEntity.ok(converted);
     }
