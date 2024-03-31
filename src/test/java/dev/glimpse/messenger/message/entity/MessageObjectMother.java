@@ -1,20 +1,19 @@
 package dev.glimpse.messenger.message.entity;
 
-import dev.glimpse.messenger.user.entity.Recipient;
-import dev.glimpse.messenger.user.entity.Sender;
+import dev.glimpse.messenger.user.entity.UserId;
 
 import java.util.UUID;
 
 public class MessageObjectMother {
 
     public static Message createMessage() {
-        return createMessage(Sender.of(UUID.randomUUID()), Recipient.of(UUID.randomUUID()));
+        return createMessage(UserId.of(UUID.randomUUID()), UserId.of(UUID.randomUUID()));
     }
 
-    public static Message createMessage(Sender sender, Recipient recipient) {
+    public static Message createMessage(UserId senderId, UserId recipient) {
         return Message.builder()
-                .sender(sender)
-                .recipient(recipient)
+                .senderId(senderId)
+                .recipientId(recipient)
                 .content(MessageContent.of("SOME CONTENT"))
                 .build();
     }
@@ -23,8 +22,8 @@ public class MessageObjectMother {
         return Message.builder()
                 .tag(tag)
                 .content(MessageContent.of("SOME CONTENT"))
-                .sender(Sender.of(UUID.randomUUID()))
-                .recipient(Recipient.of(UUID.randomUUID()))
+                .senderId(UserId.of(UUID.randomUUID()))
+                .recipientId(UserId.of(UUID.randomUUID()))
                 .build();
     }
 

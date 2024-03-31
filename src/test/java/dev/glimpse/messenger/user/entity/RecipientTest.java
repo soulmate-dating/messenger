@@ -17,7 +17,7 @@ class RecipientTest {
         var id = UUID.randomUUID();
 
         // Act
-        var recipient = Recipient.of(id);
+        UserId recipient = UserId.of(id);
 
         // Assert
         assertEquals(id, recipient.getId());
@@ -30,7 +30,7 @@ class RecipientTest {
         UUID id = null;
 
         // Act and Assert
-        assertThrows(NullPointerException.class, () -> Recipient.of(id));
+        assertThrows(NullPointerException.class, () -> UserId.of(id));
     }
 
 }

@@ -8,7 +8,7 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-class SenderTest {
+class UserIdTest {
 
     @DisplayName("Check that the sender is created with the correct inputs.")
     @Test
@@ -17,7 +17,7 @@ class SenderTest {
         var id = UUID.randomUUID();
 
         // Act
-        var sender = Sender.of(id);
+        var sender = UserId.of(id);
 
         // Assert
         assertEquals(id, sender.getId());
@@ -30,7 +30,7 @@ class SenderTest {
         UUID id = null;
 
         // Act and Assert
-        assertThrows(NullPointerException.class, () -> Sender.of(id));
+        assertThrows(NullPointerException.class, () -> UserId.of(id));
     }
 
 }

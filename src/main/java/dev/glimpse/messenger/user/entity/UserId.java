@@ -11,13 +11,14 @@ import java.util.UUID;
 
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class Recipient {
+public class UserId {
 
-    @Column("recipient_id")
+    @Column("id")
     @NotNull
     private UUID id;
 
-    public static Recipient of(@NonNull UUID id) {
-        return new Recipient(id);
+    public static UserId of(@NonNull UUID id) {
+        return new UserId(id);
     }
+
 }

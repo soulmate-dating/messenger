@@ -24,8 +24,8 @@ class MessageToMessageDtoConverterTest {
         // Assert
         assertNotNull(messageDto);
         assertEquals(message.getId().getValue(), messageDto.getId());
-        assertEquals(message.getSender().getId(), messageDto.getSenderId());
-        assertEquals(message.getRecipient().getId(), messageDto.getRecipientId());
+        assertEquals(message.getSenderId().getId(), messageDto.getSenderId());
+        assertEquals(message.getRecipientId().getId(), messageDto.getRecipientId());
         assertEquals(message.getSentAt().getValue().atOffset(ZoneOffset.UTC), messageDto.getDate());
         assertEquals(message.getContent().getValue(), messageDto.getContent());
     }

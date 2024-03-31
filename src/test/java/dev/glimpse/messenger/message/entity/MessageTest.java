@@ -1,7 +1,6 @@
 package dev.glimpse.messenger.message.entity;
 
-import dev.glimpse.messenger.user.entity.Recipient;
-import dev.glimpse.messenger.user.entity.Sender;
+import dev.glimpse.messenger.user.entity.UserId;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.data.TemporalUnitWithinOffset;
 import org.junit.jupiter.api.DisplayName;
@@ -19,16 +18,16 @@ public class MessageTest {
     @Test
     public void testMessageCreation() {
         // Arrange
-        var sender = Sender.of(UUID.randomUUID());
-        var recipient = Recipient.of(UUID.randomUUID());
+        var sender = UserId.of(UUID.randomUUID());
+        var recipient = UserId.of(UUID.randomUUID());
         var messageContent = MessageContent.of("Hello, World!");
 
         // Act
         var message = Message.of(sender, recipient, messageContent);
 
         // Act
-        assertEquals(sender, message.getSender());
-        assertEquals(recipient, message.getRecipient());
+        assertEquals(sender, message.getSenderId());
+        assertEquals(recipient, message.getRecipientId());
         assertEquals(messageContent, message.getContent());
     }
 
@@ -36,8 +35,8 @@ public class MessageTest {
     @Test
     public void testMessageCreationWithNowSentDate() {
         // Arrange
-        var sender = Sender.of(UUID.randomUUID());
-        var recipient = Recipient.of(UUID.randomUUID());
+        var sender = UserId.of(UUID.randomUUID());
+        var recipient = UserId.of(UUID.randomUUID());
         var messageContent = MessageContent.of("Hello, World!");
         var now = Instant.now();
 

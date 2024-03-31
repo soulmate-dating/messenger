@@ -10,8 +10,7 @@ import dev.glimpse.messenger.message.infrastructure.CassandraMessageRepository;
 import dev.glimpse.messenger.message.presentation.dto.MessageTagDto;
 import dev.glimpse.messenger.message.presentation.dto.MessageTagDtoObjectMother;
 import dev.glimpse.messenger.message.presentation.dto.SendMessageDtoObjectMother;
-import dev.glimpse.messenger.user.entity.Recipient;
-import dev.glimpse.messenger.user.entity.Sender;
+import dev.glimpse.messenger.user.entity.UserId;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -105,9 +104,9 @@ public class MessageApiImplIT extends AbstractIntegrationTest {
         messageRepository.save(message);
 
         // Act
-        ResultActions perform = mockMvc.perform(get(String.format("/users/%s/messages", message.getRecipient().getId().toString()))
+        ResultActions perform = mockMvc.perform(get(String.format("/users/%s/messages", message.getRecipientId().getId().toString()))
                 .contentType(MediaType.APPLICATION_JSON)
-                .queryParam("companion_id", message.getSender().getId().toString())
+                .queryParam("companion_id", message.getSenderId().getId().toString())
                 .queryParam("page", "0")
                 .queryParam("size", "10")
         );
@@ -128,14 +127,14 @@ public class MessageApiImplIT extends AbstractIntegrationTest {
     @Test
     void testFindingMessagesReturnsMessagesStartingFromConcreteMessage() throws Exception {
         // Arrange
-        Sender sender = Sender.of(UUID.randomUUID());
-        Recipient recipient = Recipient.of(UUID.randomUUID());
+        UserId senderId = UserId.of(UUID.randomUUID());
+        UserId recipient = UserId.of(UUID.randomUUID());
         List<Message> messages = List.of(
-                MessageObjectMother.createMessage(sender, recipient),
-                MessageObjectMother.createMessage(sender, recipient),
-                MessageObjectMother.createMessage(sender, recipient),
-                MessageObjectMother.createMessage(sender, recipient),
-                MessageObjectMother.createMessage(sender, recipient)
+                MessageObjectMother.createMessage(senderId, recipient),
+                MessageObjectMother.createMessage(senderId, recipient),
+                MessageObjectMother.createMessage(senderId, recipient),
+                MessageObjectMother.createMessage(senderId, recipient),
+                MessageObjectMother.createMessage(senderId, recipient)
         );
         messageRepository.saveAll(messages);
         messages = messageRepository.findAll();
@@ -146,7 +145,7 @@ public class MessageApiImplIT extends AbstractIntegrationTest {
         // Act
         ResultActions perform = mockMvc.perform(get(String.format("/users/%s/messages", recipient.getId().toString()))
                 .contentType(MediaType.APPLICATION_JSON)
-                .queryParam("companion_id", sender.getId().toString())
+                .queryParam("companion_id", senderId.getId().toString())
                 .queryParam("from_message_id", fromMessage.getId().getValue().toString())
                 .queryParam("page", "0")
                 .queryParam("size", "10")
@@ -162,8 +161,8 @@ public class MessageApiImplIT extends AbstractIntegrationTest {
         for (int i = 0; i < filteredMessages.size(); i++) {
             Message message = filteredMessages.get(i);
             resultActions.andExpect(jsonPath(String.format("$.messages[%d].id", i)).value(message.getId().getValue().toString()))
-                    .andExpect(jsonPath(String.format("$.messages[%d].sender_id", i)).value(message.getSender().getId().toString()))
-                    .andExpect(jsonPath(String.format("$.messages[%d].recipient_id", i)).value(message.getRecipient().getId().toString()))
+                    .andExpect(jsonPath(String.format("$.messages[%d].sender_id", i)).value(message.getSenderId().getId().toString()))
+                    .andExpect(jsonPath(String.format("$.messages[%d].recipient_id", i)).value(message.getRecipientId().getId().toString()))
                     .andExpect(jsonPath(String.format("$.messages[%d].content", i)).value(message.getContent().getValue()));
         }
     }
@@ -200,9 +199,9 @@ public class MessageApiImplIT extends AbstractIntegrationTest {
         messageRepository.save(message);
 
         // Act
-        ResultActions perform = mockMvc.perform(get(String.format("/users/%s/messages", message.getRecipient().getId().toString()))
+        ResultActions perform = mockMvc.perform(get(String.format("/users/%s/messages", message.getRecipientId().getId().toString()))
                 .contentType(MediaType.APPLICATION_JSON)
-                .queryParam("companion_id", message.getSender().getId().toString())
+                .queryParam("companion_id", message.getSenderId().getId().toString())
                 .queryParam("page", "0")
                 .queryParam("size", "10")
         );
@@ -218,8 +217,8 @@ public class MessageApiImplIT extends AbstractIntegrationTest {
                .andExpect(jsonPath("$.total").value(1))
                .andExpect(jsonPath("$.messages").isArray())
                .andExpect(jsonPath("$.messages[0].id").isNotEmpty())
-               .andExpect(jsonPath("$.messages[0].sender_id").value(message.getSender().getId().toString()))
-               .andExpect(jsonPath("$.messages[0].recipient_id").value(message.getRecipient().getId().toString()))
+                .andExpect(jsonPath("$.messages[0].sender_id").value(message.getSenderId().getId().toString()))
+                .andExpect(jsonPath("$.messages[0].recipient_id").value(message.getRecipientId().getId().toString()))
                .andExpect(jsonPath("$.messages[0].content").value(message.getContent().getValue()))
                .andExpect(jsonPath("$.messages[0].tag.name").value(message.getTag().getName().toString()))
                .andExpect(jsonPath("$.messages[0].tag.external_id").value(message.getTag().getExternalId().toString()));

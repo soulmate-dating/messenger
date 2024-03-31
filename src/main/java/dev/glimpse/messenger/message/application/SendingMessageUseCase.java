@@ -3,8 +3,7 @@ package dev.glimpse.messenger.message.application;
 import dev.glimpse.messenger.message.entity.Message;
 import dev.glimpse.messenger.message.entity.MessageContent;
 import dev.glimpse.messenger.message.entity.MessageTag;
-import dev.glimpse.messenger.user.entity.Recipient;
-import dev.glimpse.messenger.user.entity.Sender;
+import dev.glimpse.messenger.user.entity.UserId;
 import jakarta.annotation.Nullable;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -23,11 +22,11 @@ public class SendingMessageUseCase {
                            @NonNull UUID recipientId,
                            @NonNull MessageContent content,
                            @Nullable MessageTag tag) {
-        Sender sender = Sender.of(senderId);
-        Recipient recipient = Recipient.of(recipientId);
+        UserId sender = UserId.of(senderId);
+        UserId recipient = UserId.of(recipientId);
         Message message = Message.builder()
-                .sender(sender)
-                .recipient(recipient)
+                .senderId(sender)
+                .recipientId(recipient)
                 .content(content)
                 .tag(tag)
                 .build();
