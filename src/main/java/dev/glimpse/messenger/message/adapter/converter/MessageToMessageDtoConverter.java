@@ -21,8 +21,8 @@ public class MessageToMessageDtoConverter implements Converter<Message, MessageD
     public MessageDto convert(@NonNull Message source) {
         return new MessageDto()
                 .id(source.getId().getValue())
-                .senderId(source.getSender().getId())
-                .recipientId(source.getRecipient().getId())
+                .senderId(source.getSenderId().getId())
+                .recipientId(source.getRecipientId().getId())
                 .date(source.getSentAt().getValue().atOffset(ZoneOffset.UTC))
                 .content(source.getContent().getValue())
                 .tag(source.getMessageTag().map(messageTagConverter::convert).orElse(null));

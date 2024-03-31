@@ -1,16 +1,9 @@
 package dev.glimpse.messenger.message.entity;
 
-import dev.glimpse.messenger.user.entity.Recipient;
-import dev.glimpse.messenger.user.entity.Sender;
+import dev.glimpse.messenger.user.entity.UserId;
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotNull;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
-import lombok.ToString;
+import lombok.*;
 import org.springframework.data.cassandra.core.mapping.Embedded;
 import org.springframework.data.cassandra.core.mapping.PrimaryKey;
 import org.springframework.data.cassandra.core.mapping.Table;
@@ -39,32 +32,45 @@ public class Message {
     private MessageTag tag;
 
     @NotNull
-    @Embedded.Nullable
-    private Sender sender;
+    @Embedded(prefix = "sender_", onEmpty = Embedded.OnEmpty.USE_NULL)
+    private UserId senderId;
 
     @NotNull
-    @Embedded.Nullable
-    private Recipient recipient;
+    @Embedded(prefix = "recipient_", onEmpty = Embedded.OnEmpty.USE_NULL)
+    private UserId recipientId;
+
+    private Message(MessageBuilder builder) {
+        MessageSentDate now = MessageSentDate.now();
+        this.id = MessageId.ofRandom(now);
+        this.senderId = builder.senderId;
+        this.recipientId = builder.recipientId;
+        this.content = builder.content;
+        this.tag = Optional.ofNullable(builder.tag).orElseGet(MessageTag::of);
+    }
 
     @Deprecated
-    public static Message of(@NonNull Sender sender, @NonNull Recipient recipient, @NonNull MessageContent content) {
+    public static Message of(@NonNull UserId senderId, @NonNull UserId recipient, @NonNull MessageContent content) {
         MessageSentDate now = MessageSentDate.now();
-        return new Message(MessageId.ofRandom(now), content, MessageTag.of() , sender, recipient);
+        return new Message(MessageId.ofRandom(now), content, MessageTag.of(), senderId, recipient);
+    }
+
+    public static MessageBuilder builder() {
+        return new MessageBuilder();
     }
 
     public static class MessageBuilder {
-        private Sender sender;
-        private Recipient recipient;
+        private UserId senderId;
+        private UserId recipientId;
         private MessageContent content;
         private MessageTag tag;
 
-        public MessageBuilder sender(Sender sender) {
-            this.sender = sender;
+        public MessageBuilder senderId(UserId senderId) {
+            this.senderId = senderId;
             return this;
         }
 
-        public MessageBuilder recipient(Recipient recipient) {
-            this.recipient = recipient;
+        public MessageBuilder recipientId(UserId recipientId) {
+            this.recipientId = recipientId;
             return this;
         }
 
@@ -81,19 +87,6 @@ public class Message {
         public Message build() {
             return new Message(this);
         }
-    }
-
-    public static MessageBuilder builder() {
-        return new MessageBuilder();
-    }
-
-    private Message(MessageBuilder builder) {
-        MessageSentDate now = MessageSentDate.now();
-        this.id = MessageId.ofRandom(now);
-        this.sender = builder.sender;
-        this.recipient = builder.recipient;
-        this.content = builder.content;
-        this.tag = Optional.ofNullable(builder.tag).orElseGet(MessageTag::of);
     }
 
     public MessageSentDate getSentAt() {
