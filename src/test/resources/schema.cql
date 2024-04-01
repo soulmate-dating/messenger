@@ -18,3 +18,10 @@ create table if not exists messages(
     tag_external_id uuid,
     PRIMARY KEY ( id, date, recipient_id, sender_id )
 ) with clustering order by (date DESC);
+
+create table if not exists users
+(
+    id         uuid,
+    companions set<uuid>,
+    PRIMARY KEY (id)
+);
