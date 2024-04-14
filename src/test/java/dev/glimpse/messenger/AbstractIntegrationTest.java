@@ -2,12 +2,15 @@ package dev.glimpse.messenger;
 
 import com.datastax.oss.driver.api.core.CqlSession;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import dev.glimpse.messenger.user.application.FindingUserProfilesUseCase;
 import lombok.NonNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.MockBeans;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.messaging.converter.MappingJackson2MessageConverter;
 import org.springframework.messaging.simp.stomp.StompFrameHandler;
@@ -41,6 +44,9 @@ import java.util.concurrent.atomic.AtomicReference;
 @DisabledInAotMode
 @ExtendWith(SpringExtension.class)
 @AutoConfigureMockMvc
+@MockBeans({
+        @MockBean(FindingUserProfilesUseCase.class)
+})
 @SpringBootTest(classes = TestMessengerApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public abstract class AbstractIntegrationTest {
 

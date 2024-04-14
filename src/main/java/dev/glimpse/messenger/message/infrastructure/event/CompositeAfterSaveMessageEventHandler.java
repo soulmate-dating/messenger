@@ -25,7 +25,7 @@ public class CompositeAfterSaveMessageEventHandler extends AbstractCassandraEven
 
     @Override
     public void onAfterSave(@NonNull AfterSaveEvent<Message> event) {
-        afterSaveMessageEventHandlers.forEach((handler) -> handler.handleAfterSave(event.getSource()));
+        afterSaveMessageEventHandlers.forEach(handler -> handler.handleAfterSave(event.getSource()));
     }
 
 }

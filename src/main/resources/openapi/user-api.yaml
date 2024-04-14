@@ -1,0 +1,66 @@
+openapi: "3.0.0"
+info:
+  title: User API
+  description: User API written in google cloud rest api codestyle
+  version: 0.0.1
+servers:
+  - url: http://localhost:8080/api/v0
+    description: Local server
+paths:
+  /users/{id}/companions:
+    parameters:
+      - name: id
+        in: path
+        description: The unique identifier of the user
+        required: true
+        schema:
+          type: string
+          format: uuid
+          example: 123e4567-e89b-12d3-a456-426614174000
+    get:
+      tags:
+        - companion
+      summary: Get all companions
+      operationId: getCompanions
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatInfos'
+
+components:
+  schemas:
+    Companion:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 123e4567-e89b-12d3-a456-426614174000
+        first_name:
+          type: string
+          example: John
+        last_name:
+          type: string
+          example: Doe
+        pic_link:
+          type: string
+          example: https://example.com/pic.jpg
+          description: link to the profile picture, if not provided, use unknown
+    ChatInfo:
+      type: object
+      properties:
+        companion:
+          $ref: '#/components/schemas/Companion'
+        last_message:
+          type: string
+          example: Hello, how are you?
+        is_your_turn:
+          type: boolean
+          example: true
+    ChatInfos:
+      type: array
+      items:
+        $ref: '#/components/schemas/ChatInfo'
