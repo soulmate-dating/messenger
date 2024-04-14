@@ -68,7 +68,7 @@ jobs:
       matrix:
         config:
           - {tag: 'latest', dockerfile: 'Dockerfile.common'}
-          - {tag: 'latest-native', dockerfile: 'Dockerfile.native'}
+    #          - {tag: 'latest-native', dockerfile: 'Dockerfile.native'}
     steps:
       - name: Checkout Codebase
         uses: actions/checkout@v2

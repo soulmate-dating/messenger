@@ -1,6 +1,13 @@
+server:
+  port: 8081
 spring:
   cassandra:
     contact-points: ${DB_HOST:localhost}
     port: ${DB_PORT:9042}
     keyspace-name: messenger
     local-datacenter: datacenter1
+grpc:
+  client:
+    profile-service:
+      address: ${PROFILE_SERVICE_GRPC_HOST:localhost}:${PROFILE_SERVICE_GRPC_PORT:8080}
+      negotiation-type: PLAINTEXT
