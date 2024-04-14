@@ -53,7 +53,7 @@ public class CompanionApiImpl implements CompanionApi {
     }
 
     private Message findLastMessage(UUID id, UserId id1) {
-        return findingMessagesUseCase.execute(id, id1.getId(), null, new Paging(0, 1))
+        return findingMessagesUseCase.execute(id, id1.getId(), null, new Paging(0, 10))
                 .stream()
                 .findFirst()
                 .orElse(null);
