@@ -5,6 +5,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NonNull;
+import org.springframework.data.cassandra.core.mapping.Column;
 
 import java.time.Instant;
 
@@ -13,6 +14,7 @@ import java.time.Instant;
 public class MessageSentDate {
 
     @NotNull
+    @Column("date")
     private Instant value;
 
     static MessageSentDate of(@NonNull Instant value) {

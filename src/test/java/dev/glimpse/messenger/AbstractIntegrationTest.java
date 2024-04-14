@@ -6,6 +6,8 @@ import dev.glimpse.messenger.user.application.FindingUserProfilesUseCase;
 import lombok.NonNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -39,7 +41,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+
+import static org.junit.jupiter.api.Assertions.fail;
 
 @DisabledInAotMode
 @ExtendWith(SpringExtension.class)
@@ -49,6 +54,8 @@ import java.util.concurrent.atomic.AtomicReference;
 })
 @SpringBootTest(classes = TestMessengerApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public abstract class AbstractIntegrationTest {
+
+    private static final Logger log = LoggerFactory.getLogger(AbstractIntegrationTest.class);
 
     @Autowired
     private CqlSession cqlSession;
@@ -63,9 +70,14 @@ public abstract class AbstractIntegrationTest {
     private int port;
 
     @AfterEach
-    public void setUp() throws IOException, ScriptException {
-        cqlSession.execute("DROP KEYSPACE IF EXISTS messenger");
-        executeSchemaCreation();
+    public void setUp() {
+        log.info("Dropping keyspace and recreating schema");
+        try {
+            cqlSession.execute("DROP KEYSPACE IF EXISTS messenger");
+            executeSchemaCreation();
+        } catch (Exception e) {
+            log.error("Error during schema creation", e);
+        }
     }
 
     public class StompClientWrapper<T> {
@@ -94,7 +106,9 @@ public abstract class AbstractIntegrationTest {
             });
 
             try {
-                latch.await();
+                if (!latch.await(2, TimeUnit.SECONDS)) {
+                    fail("Stomp session was not connected");
+                }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 completableFuture.completeExceptionally(e);

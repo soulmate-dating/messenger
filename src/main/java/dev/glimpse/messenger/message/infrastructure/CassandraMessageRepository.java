@@ -16,33 +16,27 @@ public interface CassandraMessageRepository extends CassandraRepository<Message,
 
     @Query(value = """
                     select * from messages
-                    where recipient_id in (:companionId, :userId)
-                        and sender_id in (:companionId, :userId)
-                        and token(id) >= token(:fromMessageId)
-                    ALLOW FILTERING
+                    where companions_composite_key = :companionCompositeKey
+                        and id < :fromMessageId
+                    order by id desc
             """)
-    Slice<Message> findDialogMessagesFromMessage(@Param("companionId") UUID companionId,
-                                                 @Param("userId") UUID userId,
+    Slice<Message> findDialogMessagesFromMessage(@Param("companionCompositeKey") String companionCompositeKey,
                                                  UUID fromMessageId,
                                                  Pageable pageable);
 
     @Query(value = """
                     select * from messages
-                    where recipient_id in (:companionId, :userId)
-                        and sender_id in (:companionId, :userId)
-                    ALLOW FILTERING
+                    where companions_composite_key = :companionCompositeKey
+                    order by id desc
             """)
-    Slice<Message> findDialogMessagesFromStart(@Param("companionId") UUID companionId,
-                                               @Param("userId") UUID userId,
+    Slice<Message> findDialogMessagesFromStart(@Param("companionCompositeKey") String companionCompositeKey,
                                                Pageable pageable);
 
     @Query(value = """
                     select count(*) from messages
-                    where recipient_id in (:companionId, :userId)
-                        and sender_id in (:companionId, :userId)
-                        and token(id) >= token(:fromMessageId)
-                    ALLOW FILTERING
+                    where companions_composite_key = :companionCompositeKey
+                        and id < :fromMessageId
+                    order by id desc
             """)
-    int totalSizeInDialog(UUID userId, UUID companionId, UUID fromMessageId);
-
+    int totalSizeInDialog(String companionCompositeKey, UUID fromMessageId);
 }

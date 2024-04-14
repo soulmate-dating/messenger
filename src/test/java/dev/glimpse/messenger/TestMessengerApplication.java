@@ -25,7 +25,8 @@ public class TestMessengerApplication {
     CassandraContainer<?> cassandraContainer() {
         return new CassandraContainer<>(DockerImageName.parse("cassandra:latest"))
                 .withInitScript("schema.cql")
-                .withExposedPorts(9042);
+                .withExposedPorts(9042)
+                .withReuse(true);
     }
 
 

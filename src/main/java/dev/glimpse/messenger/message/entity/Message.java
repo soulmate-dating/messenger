@@ -39,19 +39,24 @@ public class Message {
     @Embedded(prefix = "recipient_", onEmpty = Embedded.OnEmpty.USE_NULL)
     private UserId recipientId;
 
+    @Getter
+    @NotNull
+    @Embedded.Empty
+    private MessageSentDate sentAt;
+
     private Message(MessageBuilder builder) {
-        MessageSentDate now = MessageSentDate.now();
-        this.id = MessageId.ofRandom(now);
+        this.id = MessageId.ofNow(builder.senderId, builder.recipientId);
         this.senderId = builder.senderId;
         this.recipientId = builder.recipientId;
         this.content = builder.content;
         this.tag = Optional.ofNullable(builder.tag).orElseGet(MessageTag::of);
+        this.sentAt = MessageSentDate.now();
     }
 
     @Deprecated
     public static Message of(@NonNull UserId senderId, @NonNull UserId recipient, @NonNull MessageContent content) {
         MessageSentDate now = MessageSentDate.now();
-        return new Message(MessageId.ofRandom(now), content, MessageTag.of(), senderId, recipient);
+        return new Message(MessageId.ofNow(senderId, recipient), content, MessageTag.of(), senderId, recipient, now);
     }
 
     public static MessageBuilder builder() {
@@ -87,10 +92,6 @@ public class Message {
         public Message build() {
             return new Message(this);
         }
-    }
-
-    public MessageSentDate getSentAt() {
-        return MessageSentDate.of(id.getSentTime());
     }
 
     public Optional<MessageTag> getMessageTag() {
