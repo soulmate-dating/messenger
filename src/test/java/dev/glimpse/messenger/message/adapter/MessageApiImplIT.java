@@ -140,7 +140,7 @@ public class MessageApiImplIT extends AbstractIntegrationTest {
         messages = messageRepository.findAll();
         Message fromMessage = messages.get(2);
 
-        List<Message> filteredMessages = messages.subList(2, messages.size());
+        List<Message> filteredMessages = messages.subList(3, messages.size());
 
         // Act
         ResultActions perform = mockMvc.perform(get(String.format("/users/%s/messages", recipient.getId().toString()))

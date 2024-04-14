@@ -5,16 +5,18 @@ create keyspace
 
 use messenger;
 
-create table if not exists messages(
-    id uuid,
-    sender_id uuid,
-    recipient_id uuid,
-    date timestamp,
-    content text,
-    tag_name text,
-    tag_external_id uuid,
-    PRIMARY KEY ( id, date )
-) with clustering order by (date DESC);
+create table if not exists messages
+(
+    companions_composite_key text,
+    id                       timeuuid,
+    sender_id                uuid,
+    recipient_id             uuid,
+    date                     timestamp,
+    content                  text,
+    tag_name                 text,
+    tag_external_id          uuid,
+    PRIMARY KEY (companions_composite_key, id)
+) with clustering order by (id desc);
 
 create table if not exists users
 (
@@ -22,3 +24,4 @@ create table if not exists users
     companions set<uuid>,
     PRIMARY KEY (id)
 );
+

@@ -3,14 +3,11 @@ package dev.glimpse.messenger.message.infrastructure;
 import dev.glimpse.messenger.common.Paging;
 import dev.glimpse.messenger.message.application.MessageRepository;
 import dev.glimpse.messenger.message.entity.Message;
+import dev.glimpse.messenger.message.entity.MessageId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.cassandra.core.query.CassandraPageRequest;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Component;
 
 import java.util.UUID;
@@ -41,15 +38,17 @@ public class MessageRepositoryImpl implements MessageRepository {
             return mapToMessagePage(pageNumber, paging.size(), 0, page);
         }
         fromMessageId = setDefaultFromMessageId(fromMessageId, page);
-        int total = messageRepository.totalSizeInDialog(userId, companionId, fromMessageId);
+        String compositeKey = MessageId.generateCompositeKey(userId, companionId);
+        int total = messageRepository.totalSizeInDialog(compositeKey, fromMessageId);
         return mapToMessagePage(pageNumber, paging.size(), total, page);
     }
 
     private Slice<Message> findDialogMessages(UUID userId, UUID companionId, UUID fromMessageId, Pageable pageRequest) {
+        String compositeKey = MessageId.generateCompositeKey(userId, companionId);
         if (fromMessageId == null) {
-            return messageRepository.findDialogMessagesFromStart(companionId, userId, pageRequest);
+            return messageRepository.findDialogMessagesFromStart(compositeKey, pageRequest);
         }
-        return messageRepository.findDialogMessagesFromMessage(companionId, userId, fromMessageId, pageRequest);
+        return messageRepository.findDialogMessagesFromMessage(compositeKey, fromMessageId, pageRequest);
     }
 
     private UUID setDefaultFromMessageId(UUID fromMessageId, Slice<Message> page) {
