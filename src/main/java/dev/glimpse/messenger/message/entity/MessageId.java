@@ -23,11 +23,11 @@ import java.util.UUID;
 public class MessageId implements Serializable {
 
     @Getter(AccessLevel.NONE)
-    @PrimaryKeyColumn(name = "companions_composite_key", ordinal = 0, type = PrimaryKeyType.CLUSTERED)
+    @PrimaryKeyColumn(name = "companions_composite_key", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
     @NotNull
     private String companionsCompositeKey;
 
-    @PrimaryKeyColumn(name = "id", ordinal = 1, type = PrimaryKeyType.PARTITIONED)
+    @PrimaryKeyColumn(name = "id", ordinal = 1, type = PrimaryKeyType.CLUSTERED)
     @NotNull
     private UUID value;
 
