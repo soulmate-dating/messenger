@@ -15,9 +15,9 @@ public class FindingCompanionsUseCase {
     private final UserRepository userRepository;
 
     public Set<User> execute(@NonNull UserId id) {
-        User user = userRepository.find(id)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
-        return userRepository.findAll(user.getCompanions());
+        return userRepository.find(id)
+                .map(user -> userRepository.findAll(user.getCompanions()))
+                .orElseGet(Set::of);
     }
 
 }
