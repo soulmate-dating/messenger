@@ -16,10 +16,7 @@ import org.springframework.core.convert.ConversionService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -41,6 +38,8 @@ public class CompanionApiImpl implements CompanionApi {
                         findLastMessage(id, companion.getId())
                 ))
                 .map(companionWithLastMessage -> conversionService.convert(companionWithLastMessage, ChatInfoDto.class))
+                .filter(Objects::nonNull)
+                .sorted(Comparator.comparing(ChatInfoDto::getLastMessageSentAt).reversed())
                 .toList());
     }
 
