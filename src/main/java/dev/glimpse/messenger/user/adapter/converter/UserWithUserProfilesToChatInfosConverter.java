@@ -9,6 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
 
+import java.time.ZoneOffset;
+
 @Slf4j
 @Component
 public class UserWithUserProfilesToChatInfosConverter implements
@@ -19,7 +21,8 @@ public class UserWithUserProfilesToChatInfosConverter implements
         return new ChatInfoDto()
                 .companion(convertCompanionDto(source))
                 .lastMessage(source.lastMessage().getContent().getValue())
-                .isYourTurn(source.lastMessage().getSenderId().equals(source.companion().getId()));
+                .isYourTurn(source.lastMessage().getSenderId().equals(source.companion().getId()))
+                .lastMessageSentAt(source.lastMessage().getSentAt().getValue().atOffset(ZoneOffset.UTC));
     }
 
     private CompanionDto convertCompanionDto(CompanionWithLastMessage source) {

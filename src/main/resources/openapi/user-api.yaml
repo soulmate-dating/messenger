@@ -57,6 +57,11 @@ components:
         last_message:
           type: string
           example: Hello, how are you?
+        last_message_sent_at:
+          type: string
+          format: date-time
+          description: The date and time the message was sent
+          example: 2021-08-01T12:00:00Z
         is_your_turn:
           type: boolean
           example: true
